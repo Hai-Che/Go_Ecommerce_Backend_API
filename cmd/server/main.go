@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"github.com/Hai-Che/Go_Ecommerce_Backend_API/internal/routers"
+)
 
 func main() {
-	fmt.Println("Test")
+	r := routers.NewRouter()
+	r.Run("localhost:8000")
 }
