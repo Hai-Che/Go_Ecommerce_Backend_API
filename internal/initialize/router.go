@@ -1,17 +1,38 @@
 package initialize
 
 import (
-	c "github.com/Hai-Che/Go_Ecommerce_Backend_API/internal/controller"
-	"github.com/Hai-Che/Go_Ecommerce_Backend_API/internal/middlewares"
+	"github.com/Hai-Che/Go_Ecommerce_Backend_API/global"
+	"github.com/Hai-Che/Go_Ecommerce_Backend_API/internal/routers"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {
-	r := gin.Default()
-	r.Use(middlewares.AuthenMiddleware())
-	v1 := r.Group("/v1")
-	{
-		v1.GET("/user/1", c.NewUserController().GetUserByID)
+	var r *gin.Engine
+	if global.Config.Server.Mode == "dev" {
+		gin.SetMode(gin.DebugMode)
+		gin.ForceConsoleColor()
+		r = gin.Default()
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+		r = gin.New()
 	}
+	// r.use() logger
+	// r.use() cross
+	// r.use() limiter
+	managerRouter := routers.RouterGroupApp.Manager
+	userRouter := routers.RouterGroupApp.User
+	mainGroup := r.Group("/v1/2024")
+	{
+		mainGroup.GET("/checkStatus")
+	}
+	{
+		userRouter.InitUserRouter(mainGroup)
+		userRouter.InitProductRouter(mainGroup)
+	}
+	{
+		managerRouter.InitUserRouter(mainGroup)
+		managerRouter.InitAdminRouter(mainGroup)
+	}
+
 	return r
 }
